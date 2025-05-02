@@ -1,12 +1,16 @@
 from Neuron import Neuron_Network
-    
-def activasion(s) :
-    return s * 20
+import math
 
-def diff_activasion(s) :
-    return s/20
+
+def activasion(s) :
+    return 1/(1 + math.exp(-s))
+
+def diff_activasion(a) :
+    return a * (1-a)
 
 network = Neuron_Network(activasion, diff_activasion)
-network.add_inputs([1,2,3,4,5])
-network.add_layer(2)
-print(network.get_layer(1))
+network.set_inputs([2.57,4.35,1.27])
+network.add_layer(1)
+network.layer_array[1].weigths = [[1,1,1,]]
+
+network.train_network([[2.57,4.35,1.27]],[[3]],None,None,1,0.1)
