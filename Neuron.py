@@ -17,7 +17,7 @@ class Neuron_Network :
     
     def add_layer(self, number_of_neuron) :
         previus_layer_lenght = self.layer_array[-1].get_length()
-        self.layer_array.append(Layer.create_empty_layer(number_of_neuron,previus_layer_lenght))
+        self.layer_array.append(Layer.create_empty_layer(number_of_neuron,previus_layer_lenght,1))
     
     def get_inputs(self) :
         return self.layer_array[0].output
@@ -28,7 +28,7 @@ class Neuron_Network :
     def get_layer_array_frame(self) :
         alt = []
         for i in range (1, len(self.layer_array)) :
-            alt.append(Layer.create_empty_layer(len(self.layer_array[i].weigths),len(self.layer_array[i].weigths[0])))
+            alt.append(Layer.create_empty_layer(len(self.layer_array[i].weigths),len(self.layer_array[i].weigths[0]), 0))
         return alt
 
     def calculate_output(self) :
@@ -47,6 +47,7 @@ class Neuron_Network :
                 layer.output[i] = self.run_activasion(sum)
             
             inputs = layer.output
+            print(f"Вихід нейронів {self.layer_array.index(layer)} шару ")
             print(layer.get_all())
 
         return inputs
@@ -61,6 +62,7 @@ class Neuron_Network :
         for i in range (len(self.alt_layer_array[-1].biases)) :
             dif_cost = 2 * (self.layer_array[-1].output[i] - result[i])
             dif_func_activasion = self.run_dif_activasion(self.layer_array[-1].output[i])
+            print(f"2 * ({self.layer_array[-1].output[i]}-{result[i]}) * {self.layer_array[-1].output[i]} * (1-{self.layer_array[-1].output[i]})")
             self.alt_layer_array[-1].biases[i] = dif_cost * dif_func_activasion
 
     def update_network(self, data, result) :

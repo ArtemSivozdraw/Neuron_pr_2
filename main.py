@@ -11,6 +11,5 @@ def diff_activasion(a) :
 network = Neuron_Network(activasion, diff_activasion)
 network.set_inputs([2.57,4.35,1.27])
 network.add_layer(1)
-network.layer_array[1].weigths = [[1,1,1,]]
 
-network.train_network([[2.57,4.35,1.27]],[[3]],None,None,1,0.1)
+network.train_network([[2.57,4.35,1.27]],[[0.5]],None,None,1,0.1)

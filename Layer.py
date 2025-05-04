@@ -5,10 +5,10 @@ class Layer :
         self.output = output
     
     @staticmethod
-    def create_empty_layer(number_of_neurons, previus_number_of_neuron) :
+    def create_empty_layer(number_of_neurons, previus_number_of_neuron, weights_filler) :
         biases = [0] * number_of_neurons
         output = [None] * number_of_neurons
-        weigths = [[1]*previus_number_of_neuron]*number_of_neurons
+        weigths = [[weights_filler]*previus_number_of_neuron]*number_of_neurons
         return Layer(weigths,biases, output)
     
     def get_all(self) :
