@@ -10,6 +10,8 @@ def diff_activasion(a) :
 
 network = Neuron_Network(activasion, diff_activasion)
 network.set_inputs([2.57,4.35,1.27])
-network.add_layer(1)
+network.add_layer(4)
+network.add_layer(3)
+network.add_layer(2)
 
-network.train_network([[2.57,4.35,1.27]],[[0.5]],None,None,1,0.1)
+network.train_network([[2.57,4.35,1.27]],[[0.5,0.1]],None,None,1,0.1)
