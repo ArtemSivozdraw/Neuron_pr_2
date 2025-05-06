@@ -8,10 +8,8 @@ def activasion(s) :
 def diff_activasion(a) :
     return a * (1-a)
 
-network = Neuron_Network(activasion, diff_activasion)
-network.set_inputs([2.57,4.35,1.27])
+network = Neuron_Network(activasion, diff_activasion,3)
 network.add_layer(4)
-network.add_layer(3)
 network.add_layer(2)
 
-network.train_network([[2.57,4.35,1.27]],[[0.5,0.1]],None,None,1,0.1)
+network.train_network([[2.57,4.35,1.27]],[[0.5,0.1]],None,None,1000,0.1)

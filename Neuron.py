@@ -1,10 +1,10 @@
 from Layer import Layer
 
 class Neuron_Network :
-    def __init__(self, activasion, diff_activasion) :
+    def __init__(self, activasion, diff_activasion, number_of_inputs) :
         self.activasion_function = activasion
         self.differential_activasion_function = diff_activasion
-        self.layer_array = [None]
+        self.layer_array = [Layer(None, None, [0]*number_of_inputs)]
     
     def run_activasion(self,s) :
         return self.activasion_function(s)
@@ -65,23 +65,23 @@ class Neuron_Network :
             dif_cost = 2 * (self.layer_array[-1].output[i] - result[i])
             dif_func_activasion = self.run_dif_activasion(self.layer_array[-1].output[i])
             #print(f"2 * ({self.layer_array[-1].output[i]}-{result[i]}) * {self.layer_array[-1].output[i]} * (1-{self.layer_array[-1].output[i]})")
-            self.alt_layer_array[-1].biases[i] = dif_cost * dif_func_activasion
+            self.alt_layer_array[-1].output[i] = dif_cost * dif_func_activasion
+            self.alt_layer_array[-1].biases[i] += self.alt_layer_array[-1].output[i]
 
     def calculate_hiden_delta(self) :
         if len(self.layer_array) == 2 :
             return
 
-
         for i in range (len(self.layer_array)-2,0,-1) :
             for j in range (len(self.layer_array[i].biases)) :
+                self.alt_layer_array[i-1].output[j] = 0
                 weigths,deltas = self.get_deltaXweight_array(i,j)
                 diff_a = self.run_dif_activasion(self.layer_array[i].output[j])
                 for k in range (len(weigths)) :
-                    self.alt_layer_array[i-1].biases[j] += weigths[k] * deltas[k] * diff_a
-        
-        for layer in self.alt_layer_array :
-            print(layer.get_all())        
+                    self.alt_layer_array[i-1].output[j] += weigths[k] * deltas[k] * diff_a
 
+                self.alt_layer_array[i-1].biases[j] += self.alt_layer_array[i-1].output[j]
+        
     def get_deltaXweight_array (self,layer_index,neuron_index) :
         weights_array = []
         delta_array = []
@@ -91,8 +91,21 @@ class Neuron_Network :
         
         return weights_array, delta_array
 
+    def devine_alt_array_by(self, number) :
+        for i in range(len(self.alt_layer_array)) :
+            for j in range (len(self.alt_layer_array[i].weigths)) :
+                for k in range (len(self.alt_layer_array[i].weigths[j])) :
+                    self.alt_layer_array[i].weigths[j][k] /= number
+            for j in range (len(self.alt_layer_array[i].biases)) :
+                self.alt_layer_array[i].biases[j] /= number
 
-    def update_network(self, data, result) :
+    def calculate_weigths(self) :
+        for i in range (len(self.alt_layer_array)) :
+            for j in range (len(self.alt_layer_array[i].weigths)) :
+                for k in range (len(self.alt_layer_array[i].weigths[j])) :
+                    self.alt_layer_array[i].weigths[j][k] += self.alt_layer_array[i].output[j] * self.layer_array[i+1].weigths[j][k]
+
+    def calculate_update(self, data, result) :
         avrg_cost = 0
         self.alt_layer_array = self.get_layer_array_frame()
         self.set_inputs(data[0])
@@ -108,12 +121,25 @@ class Neuron_Network :
 
             self.calculate_hiden_delta()
 
-            #for layer in self.alt_layer_array :
-                #print(layer.get_all())
+            self.calculate_weigths()
 
+        
+        avrg_cost /= len(result)
+        self.devine_alt_array_by(len(result))
 
+        return avrg_cost
+
+    def update_network(self, step) :
+        for i in range (len(self.alt_layer_array)) :
+            for j in range (len(self.alt_layer_array[i].weigths)) :
+                for k in range (len(self.alt_layer_array[i].weigths[j])) :
+                    self.layer_array[i+1].weigths[j][k] -= step * self.alt_layer_array[i].weigths[j][k]
+            for j in range (len(self.alt_layer_array[i].biases)) :
+                self.layer_array[i+1].biases[j] -= step * self.alt_layer_array[i].biases[j]
 
     def train_network(self, train_data, train_result, test_data, test_result, epoch, valid_cost) :
 
         for current in range (epoch) :
-            avarage_cost = self.update_network(train_data,train_result)
+            avarage_cost = self.calculate_update(train_data,train_result)
+            self.update_network(0.1)
+            print(f"!!! Cost = {avarage_cost} !!!")
