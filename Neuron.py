@@ -17,7 +17,7 @@ class Neuron_Network :
     
     def add_layer(self, number_of_neuron) :
         previus_layer_lenght = self.layer_array[-1].get_length()
-        self.layer_array.append(Layer.create_empty_layer(number_of_neuron,previus_layer_lenght,len(self.layer_array),1))
+        self.layer_array.append(Layer.create_empty_layer(number_of_neuron,previus_layer_lenght,1,0))
     
     def get_inputs(self) :
         return self.layer_array[0].output
@@ -30,6 +30,10 @@ class Neuron_Network :
         for i in range (1, len(self.layer_array)) :
             alt.append(Layer.create_empty_layer(len(self.layer_array[i].weigths),len(self.layer_array[i].weigths[0]), 0, 0))
         return alt
+    
+    def print_layer_array(self) :
+        for layer in self.layer_array :
+            print(layer.get_all())
 
     def calculate_output(self) :
 
@@ -38,7 +42,7 @@ class Neuron_Network :
                 inputs = layer.output 
                 continue
             
-            #print(inputs)
+            #print(inputs, end=" ")
             for i in range (layer.get_length()) :
                 sum = 0
                 for j in range (len(inputs)) :
@@ -103,18 +107,20 @@ class Neuron_Network :
         for i in range (len(self.alt_layer_array)) :
             for j in range (len(self.alt_layer_array[i].weigths)) :
                 for k in range (len(self.alt_layer_array[i].weigths[j])) :
-                    self.alt_layer_array[i].weigths[j][k] += self.alt_layer_array[i].output[j] * self.layer_array[i+1].weigths[j][k]
+                    self.alt_layer_array[i].weigths[j][k] += self.alt_layer_array[i].output[j] * self.layer_array[i].output[k]
 
     def calculate_update(self, data, result) :
         avrg_cost = 0
         self.alt_layer_array = self.get_layer_array_frame()
-        self.set_inputs(data[0])
         for i in range (len(result)) :
             if len(data[i]) != len(self.layer_array[0].output) :
                 raise TypeError("Невірна кількість нейронів вхідного шару")
             
+            self.set_inputs(data[i])
+            
             network_output = self.calculate_output()
             cost = self.calculate_cost(network_output,result[i])
+            #print(cost)
             avrg_cost+=cost
 
             self.calculate_output_delta(result[i])
@@ -141,5 +147,5 @@ class Neuron_Network :
 
         for current in range (epoch) :
             avarage_cost = self.calculate_update(train_data,train_result)
-            self.update_network(0.1)
+            self.update_network(0.001)
             print(f"!!! Cost = {avarage_cost} !!!")
