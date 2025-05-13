@@ -31,8 +31,11 @@ class Neuron_Network :
             alt.append(Layer.create_empty_layer(len(self.layer_array[i].weigths),len(self.layer_array[i].weigths[0]), 0, 0))
         return alt
     
-    def print_layer_array(self) :
-        for layer in self.layer_array :
+    def print_layer_array(self, alt) :
+        array = self.layer_array
+        if alt :
+            array = self.alt_layer_array
+        for layer in array :
             print(layer.get_all())
 
     def calculate_output(self) :
@@ -42,7 +45,6 @@ class Neuron_Network :
                 inputs = layer.output 
                 continue
             
-            #print(inputs, end=" ")
             for i in range (layer.get_length()) :
                 sum = 0
                 for j in range (len(inputs)) :
@@ -51,8 +53,6 @@ class Neuron_Network :
                 layer.output[i] = self.run_activasion(sum)
             
             inputs = layer.output
-            #print(f"Вихід нейронів {self.layer_array.index(layer)} шару ")
-            #print(layer.get_all())
 
         return inputs
     
@@ -91,7 +91,7 @@ class Neuron_Network :
         delta_array = []
         for i in range (len(self.layer_array[layer_index+1].weigths)) :
             weights_array.append(self.layer_array[layer_index+1].weigths[i][neuron_index])
-            delta_array.append(self.alt_layer_array[layer_index].biases[i])
+            delta_array.append(self.alt_layer_array[layer_index].output[i])
         
         return weights_array, delta_array
 
@@ -128,10 +128,11 @@ class Neuron_Network :
             self.calculate_hiden_delta()
 
             self.calculate_weigths()
-
         
         avrg_cost /= len(result)
         self.devine_alt_array_by(len(result))
+
+        self.print_layer_array(alt=True)
 
         return avrg_cost
 
@@ -143,9 +144,29 @@ class Neuron_Network :
             for j in range (len(self.alt_layer_array[i].biases)) :
                 self.layer_array[i+1].biases[j] -= step * self.alt_layer_array[i].biases[j]
 
-    def train_network(self, train_data, train_result, test_data, test_result, epoch, valid_cost) :
+    def train_network(self, train_data, train_result, test_data, test_result, epoch, step, valid_cost) :
+        avarage_cost = 0
 
         for current in range (epoch) :
+            previous_cost = avarage_cost
             avarage_cost = self.calculate_update(train_data,train_result)
-            self.update_network(0.001)
-            print(f"!!! Cost = {avarage_cost} !!!")
+
+            if avarage_cost > previous_cost :
+                if previous_cost == 0 :
+                    continue
+                print("!!! Cost start rising. Emegrency braking !!!")
+                break
+            if avarage_cost < valid_cost :
+                print(f"Cost is bellow {valid_cost} on epoch {current}")
+                break
+            self.update_network(step)
+            print(f"Cost = {avarage_cost} | epoch {current}")
+        
+        
+        for i in range(len(test_result)) :
+            self.set_inputs(test_data[i])
+            output = self.calculate_output()
+            cost = self.calculate_cost(output, test_result[i])
+
+            print(f"Set of inputs {test_data[i]} \nNetwork output : {output} \nExpected value : {test_result[i]} \nCost : {cost}")
+            print()
