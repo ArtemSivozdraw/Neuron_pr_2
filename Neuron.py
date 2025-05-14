@@ -120,7 +120,7 @@ class Neuron_Network :
             
             network_output = self.calculate_output()
             cost = self.calculate_cost(network_output,result[i])
-            #print(cost)
+       
             avrg_cost+=cost
 
             self.calculate_output_delta(result[i])
@@ -131,8 +131,6 @@ class Neuron_Network :
         
         avrg_cost /= len(result)
         self.devine_alt_array_by(len(result))
-
-        self.print_layer_array(alt=True)
 
         return avrg_cost
 
@@ -151,7 +149,7 @@ class Neuron_Network :
             previous_cost = avarage_cost
             avarage_cost = self.calculate_update(train_data,train_result)
 
-            if avarage_cost > previous_cost :
+            if avarage_cost > previous_cost*1.01 :
                 if previous_cost == 0 :
                     continue
                 print("!!! Cost start rising. Emegrency braking !!!")
@@ -162,6 +160,8 @@ class Neuron_Network :
             self.update_network(step)
             print(f"Cost = {avarage_cost} | epoch {current}")
         
+        if test_data == None :
+            return
         
         for i in range(len(test_result)) :
             self.set_inputs(test_data[i])

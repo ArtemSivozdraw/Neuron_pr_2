@@ -1,3 +1,6 @@
+import numpy as np
+
+
 class Layer :
     def __init__(self, weigths, biases,output) :
         self.weigths = weigths
@@ -6,17 +9,14 @@ class Layer :
     
     @staticmethod
     def create_empty_layer(number_of_neurons, previus_number_of_neuron, weights_filler, numaration) :
-        biases = [0] * number_of_neurons
+        biases = np.random.uniform(-1, 1, number_of_neurons).tolist()
         output = [None] * number_of_neurons
         weigths = []
-        s=0
+
         for _ in range (number_of_neurons) :
-            temp = []
-            for i in range(previus_number_of_neuron) :
-                temp.append(weights_filler+s*numaration)
-                s+=0.01
+            temp = np.random.uniform(-1, 1, previus_number_of_neuron).tolist()
             weigths.append(temp)
-        #weigths = [[weights_filler]*previus_number_of_neuron]*number_of_neurons
+
         return Layer(weigths,biases, output)
     
     def get_all(self) :
